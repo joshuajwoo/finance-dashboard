@@ -1,0 +1,59 @@
+# Environment Variables
+# ---------------------
+# Ignore the backend .env file containing secret Plaid keys
+/backend/.env
+
+# Ignore frontend local environment files (from your existing .gitignore)
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+
+# Python / Django Backend
+# -----------------------
+# Ignore the Python virtual environment folder
+/venv/
+
+# Ignore Python cache and compiled files
+__pycache__/
+*.pyc
+
+# Ignore the default SQLite database if used during development
+db.sqlite3*
+
+
+# Frontend / Node.js
+# ------------------
+# Adapted from your frontend/.gitignore file to work from the root.
+
+# Dependencies
+/frontend/node_modules/
+/frontend/.pnp
+/frontend/.pnp.js
+
+# Testing
+/frontend/coverage/
+
+# Production build folder
+/frontend/build/
+
+
+# Logs
+# ----
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+
+# Operating System / Editor Specific Files
+# ----------------------------------------
+# macOS
+.DS_Store
+
+# Windows
+Thumbs.db
+
+# IDEs like VSCode and JetBrains
+.vscode/
+.idea/

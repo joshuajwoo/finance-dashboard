@@ -1,0 +1,14 @@
+# Ignore dependencies and build artifacts
+node_modules
+build
+coverage
+
+# Ignore local env files
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Ignore docker-related files from being copied into the image
+.dockerignore
+Dockerfile

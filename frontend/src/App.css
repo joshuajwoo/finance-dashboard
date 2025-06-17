@@ -1,0 +1,130 @@
+/* At the top of your App.css, or in a reset/normalize section if you have one */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+/* Main App container styling -UNCHANGED */
+.App {
+  text-align: center;
+}
+
+/* Header section styling - UNCHANGED */
+.App-header {
+  background-color: #282c34;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(10px + 2vmin);
+  color: white;
+  padding: 20px; /* Add some padding to App-header if content gets too wide */
+}
+
+/* Generic form styles - this might be applying to your .login-form-container too.
+   Let's make sure it doesn't conflict with .login-form-container's specific width.
+   The background and padding here will be overridden by .login-form-container if it's more specific. */
+form { /* This is very generic, applies to ALL forms */
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  /* Consider removing background-color and padding from generic form
+     if .login-form-container is meant to be the styled one. */
+  /* background-color: #3a3f4a; */
+  /* padding: 30px; */
+  border-radius: 8px; /* This might still be desired */
+  /* box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Also might be overridden */
+}
+
+/* Divs inside the generic form - UNCHANGED */
+form div {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+/* Label styling - UNCHANGED */
+label {
+  margin-bottom: 5px;
+  font-size: 0.9em;
+}
+
+/* Submit button styling - UNCHANGED */
+button[type="submit"] {
+  padding: 10px 15px;
+  border-radius: 4px;
+  border: none;
+  background-color: #61dafb;
+  color: #282c34;
+  font-size: 1em;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+button[type="submit"]:hover {
+  background-color: #52b9d8;
+}
+
+/* Wrapper for all content on the login page (H1, form, message) */
+.login-page-content-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* Centers its children (H1, form, message paragraph) */
+  /*
+    Set a max-width for this entire login block if you want to constrain
+    how wide the error message can make this block.
+    For example, if you want the error message to be max 500px,
+    and the form to be 350px within that.
+  */
+  width: 100%; /* Takes width of parent, App-header's content area */
+  max-width: 500px; /* Max width for the entire login block including error message */
+}
+
+/* Style for the form itself (the grey box) */
+.login-form-container { /* This class is on your <form> element */
+  background-color: #4a4a4a;
+  padding: 25px 30px; /* Adjust padding as needed */
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Softer shadow */
+
+  width: 350px; /* Explicit width for the form box */
+  /* It will be centered by its parent .login-page-content-wrapper's align-items: center */
+
+  display: flex;
+  flex-direction: column;
+  gap: 15px; /* Spacing between items inside the form */
+}
+
+/* Error Message Styling */
+.login-form-message {
+  min-height: 1.2em;   /* Vertical stability */
+  line-height: 1.2em;
+  margin-top: 20px;
+  font-size: 0.9em;
+  text-align: center;
+  word-wrap: break-word;
+  width: 800px;
+  /* Takes full width of its parent (.login-page-content-wrapper) */
+  /* max-width is effectively controlled by .login-page-content-wrapper's max-width */
+  padding: 0 10px; /* Add some horizontal padding if message is full width */
+}
+
+.chart-container {
+  max-width: 450px;
+  margin: 20px auto; /* Center the chart container */
+  padding: 20px;
+  background-color: #3a3f4a; /* A background similar to your form */
+  border-radius: 8px;
+}
+
+.form-input {
+  width: 100%; /* Take up full width of the form's content area */
+  padding: 10px;
+  border-radius: 4px;
+  border: 1px solid #ddd;
+  font-size: 1em;
+  color: #333; /* Darker text for readability */
+  background-color: #fff;
+}

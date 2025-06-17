@@ -1,0 +1,71 @@
+Watching for file changes with StatReloader
+Internal Server Error: /api/core/transactions/
+Traceback (most recent call last):
+  File "/Users/joshuajwoo/projects/finance-dashboard/venv/lib/python3.12/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/joshuajwoo/projects/finance-dashboard/venv/lib/python3.12/site-packages/django/core/handlers/base.py", line 220, in _get_response
+    response = response.render()
+               ^^^^^^^^^^^^^^^^^
+  File "/Users/joshuajwoo/projects/finance-dashboard/venv/lib/python3.12/site-packages/django/template/response.py", line 114, in render
+    self.content = self.rendered_content
+                   ^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/joshuajwoo/projects/finance-dashboard/venv/lib/python3.12/site-packages/rest_framework/response.py", line 74, in rendered_content
+    ret = renderer.render(self.data, accepted_media_type, context)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/joshuajwoo/projects/finance-dashboard/venv/lib/python3.12/site-packages/rest_framework/renderers.py", line 100, in render
+    ret = json.dumps(
+          ^^^^^^^^^^^
+  File "/Users/joshuajwoo/projects/finance-dashboard/venv/lib/python3.12/site-packages/rest_framework/utils/json.py", line 25, in dumps
+    return json.dumps(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/json/__init__.py", line 238, in dumps
+    **kw).encode(obj)
+          ^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/json/encoder.py", line 200, in encode
+    chunks = self.iterencode(o, _one_shot=True)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/json/encoder.py", line 258, in iterencode
+    return _iterencode(o, 0)
+           ^^^^^^^^^^^^^^^^^
+  File "/Users/joshuajwoo/projects/finance-dashboard/venv/lib/python3.12/site-packages/rest_framework/utils/encoders.py", line 67, in default
+    return super().default(obj)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/json/encoder.py", line 180, in default
+    raise TypeError(f'Object of type {o.__class__.__name__} '
+TypeError: Object of type Transaction is not JSON serializable
+[10/Jun/2025 10:46:50] "GET /api/core/transactions/ HTTP/1.1" 500 138707
+/Users/joshuajwoo/projects/finance-dashboard/backend/core/views.py changed, reloading.
+Performing system checks...
+
+System check identified no issues (0 silenced).
+June 10, 2025 - 10:46:40
+Django version 5.2.1, using settings 'fininsight_ai_backend.settings'
+Starting development server at http://127.0.0.1:8000/
+Quit the server with CONTROL-C.
+
+WARNING: This is a development server. Do not use it in a production setting. Use a production WSGI or ASGI server instead.
+For more information on production servers see: https://docs.djangoproject.com/en/5.2/howto/deployment/
+Watching for file changes with StatReloader
+/Users/joshuajwoo/projects/finance-dashboard/backend/core/views.py changed, reloading.
+Performing system checks...
+
+System check identified no issues (0 silenced).
+June 10, 2025 - 10:48:35
+Django version 5.2.1, using settings 'fininsight_ai_backend.settings'
+Starting development server at http://127.0.0.1:8000/
+Quit the server with CONTROL-C.
+
+WARNING: This is a development server. Do not use it in a production setting. Use a production WSGI or ASGI server instead.
+For more information on production servers see: https://docs.djangoproject.com/en/5.2/howto/deployment/
+Watching for file changes with StatReloader
+Performing system checks...
+
+System check identified no issues (0 silenced).
+June 10, 2025 - 10:48:39
+Django version 5.2.1, using settings 'fininsight_ai_backend.settings'
+Starting development server at http://127.0.0.1:8000/
+Quit the server with CONTROL-C.
+
+WARNING: This is a development server. Do not use it in a production setting. Use a production WSGI or ASGI server instead.
+For more information on production servers see: https://docs.djangoproject.com/en/5.2/howto/deployment/

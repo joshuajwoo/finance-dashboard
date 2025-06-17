@@ -1,0 +1,43 @@
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: finance-db-prod
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=jUnGiTw00!
+      - POSTGRES_DB=financedb
+
+  backend:
+    # Use the more explicit object format for the build instruction
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: finance-backend-prod
+    command: /app/entrypoint.sh
+    env_file:
+      - ./backend/.env
+    environment:
+      - DATABASE_URL=postgres://postgres:jUnGiTw00!@db:5432/financedb
+      - SECRET_KEY=${SECRET_KEY}
+      - DEBUG=False
+      - ALLOWED_HOSTS=localhost,127.0.0.1,frontend
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+
+  frontend:
+    # Use the more explicit object format for the build instruction
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: finance-frontend-prod
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+
+volumes:
+  postgres_data:
