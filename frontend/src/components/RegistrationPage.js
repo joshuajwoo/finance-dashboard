@@ -23,7 +23,7 @@ function RegistrationPage() {
 
     try {
       const payload = { username, password, email };
-      await axiosInstance.post('http://127.0.0.1:8000/api/core/register/', payload);
+      await axiosInstance.post('/core/register/', payload);
 
       setErrors(['Registration successful! Redirecting to login...']);
 
@@ -39,7 +39,7 @@ function RegistrationPage() {
         const errorMessages = [];
         
         for (const key in backendErrors) {
-          const message = backendErrors[key].join(' '); // e.g. "A user with that username already exists."
+          const message = backendErrors[key].join(' ');
           errorMessages.push(message);
         }
 
