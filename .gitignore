@@ -57,3 +57,4 @@ Thumbs.db
 # IDEs like VSCode and JetBrains
 .vscode/
 .idea/
+.env
