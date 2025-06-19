@@ -40,18 +40,8 @@ SECRET_KEY = os.getenv('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv('DEBUG', 'True') == 'True'
 
-ALLOWED_HOSTS = ["*"]
-
-# For production, get the host from the environment variable we set in AWS App Runner
-PRODUCTION_HOST = os.getenv('ALLOWED_HOSTS')
-if PRODUCTION_HOST:
-    ALLOWED_HOSTS.append(PRODUCTION_HOST)
-
-# For local development, allow localhost if DEBUG is True
-if DEBUG:
-    ALLOWED_HOSTS.append('127.0.0.1')
-    ALLOWED_HOSTS.append('localhost')
-
+# Securely set allowed hosts
+ALLOWED_HOSTS = ['4mhtisp2gx.us-west-2.awsapprunner.com']
 
 # Application definition
 
@@ -200,6 +190,7 @@ SIMPLE_JWT = {
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000", # Your React frontend (local development)
     "http://127.0.0.1:3000", # Your React frontend (local development)
+    "https://63rs3uifyz.us-west-2.awsapprunner.com", 
 ]
 
 # CORS_ALLOW_ALL_ORIGINS = True

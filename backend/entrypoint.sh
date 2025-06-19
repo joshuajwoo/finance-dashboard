@@ -1,9 +1,10 @@
-#!/bin/bash
-# Exit immediately if a command exits with a non-zero status.
+#!/bin/sh
+
 set -e
 
-echo "Applying database migrations..."
-python manage.py migrate --no-input
+# Temporarily disable migrations to test if the server can start
+echo "Skipping database migrations for debugging..."
+python manage.py migrate 
 
 echo "Starting Gunicorn server..."
-gunicorn --bind 0.0.0.0:8000 fininsight_ai_backend.wsgi:application
+exec gunicorn fininsight_ai_backend.wsgi:application --bind 0.0.0.0:8000

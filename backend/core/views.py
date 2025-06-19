@@ -13,6 +13,10 @@ from django.http import JsonResponse
 import json
 from .models import PlaidItem, Account, Transaction
 from datetime import datetime, timedelta
+from rest_framework_simplejwt.views import TokenObtainPairView
+from .serializers import MyTokenObtainPairSerializer
+import plaid
+import json
 
 # Your existing UserCreateView
 class UserCreateView(generics.CreateAPIView):
@@ -47,36 +51,43 @@ class CreateLinkTokenView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
+        # --- FIX: The 'try' block and its contents must be indented ---
         try:
-            # Create a link_token for the user
+            # --- Add print statements for debugging ---
+            print("--- Attempting to create Plaid link token ---")
+            print(f"Using Plaid Client ID: {bool(settings.PLAID_CLIENT_ID)}")
+            # We check if the secret exists without printing the secret itself for security
+            print(f"Using Plaid Secret: {bool(settings.PLAID_SECRET)}") 
+
             plaid_request = LinkTokenCreateRequest(
-                user=LinkTokenCreateRequestUser(
-                    # A unique ID for the user. request.user.id is a good choice.
-                    client_user_id=str(request.user.id)
-                ),
+                user=LinkTokenCreateRequestUser(client_user_id=str(request.user.id)),
                 client_name=settings.APP_NAME,
                 products=settings.PLAID_PRODUCTS,
                 country_codes=settings.PLAID_COUNTRY_CODES,
-                language='en',  # Language for the Plaid Link UI
+                language='en',
             )
+            print("Plaid request object created. Calling Plaid API...")
 
-            # Make the API request to Plaid
             response = settings.PLAID_CLIENT.link_token_create(plaid_request)
 
-            # Return the link_token to the frontend
+            print("Successfully received link_token from Plaid.")
             return Response(response.to_dict())
 
-        except ApiException as e:
-            # Handle Plaid API errors
+        except plaid.ApiException as e:
+            # --- This is the most important change ---
+            # This will log the exact error message from Plaid's server
+            print("!!! Plaid API Exception Occurred !!!")
             error_response = json.loads(e.body)
-            return JsonResponse(
-                {'error': error_response},
-                status=e.status
-            )
+            print("Full error from Plaid:", error_response)
+            return JsonResponse({'error': error_response}, status=e.status)
+
         except Exception as e:
-            # Handle other unexpected errors
-            return JsonResponse({'error': str(e)}, status=500)
-    # This view exchanges a public_token for an access_token
+            # This will catch any other unexpected errors
+            print("!!! A Generic Exception Occurred !!!")
+            print(f"Error type: {type(e).__name__}")
+            print(f"Error details: {e}")
+            return JsonResponse({'error': 'A generic server error occurred.'}, status=500)
+    
 class SetAccessTokenView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -207,4 +218,6 @@ class TransactionsView(APIView):
             # Replace self.stderr.write with a standard print() statement
             print(f"An unexpected error occurred in TransactionsView: {e}")
             return JsonResponse({'error': str(e)}, status=500)
+class MyTokenObtainPairView(TokenObtainPairView):
+    serializer_class = MyTokenObtainPairSerializer
     
