@@ -1,39 +1,30 @@
-# backend/Dockerfile
-
-# Use the official Python image
+# Use an official Python runtime as a parent image
 FROM python:3.12-slim
 
-# Set environment variables for production
-ENV PYTHONDONTWRITEBYTECODE=1
-ENV PYTHONUNBUFFERED=1
+# Set environment variables to prevent Python from writing .pyc files
+ENV PYTHONDONTWRITEBYTECODE 1
+ENV PYTHONUNBUFFERED 1
 
-# Set the working directory
+# Add networking tools for debugging (from our previous step)
+RUN apt-get update && apt-get install -y postgresql-client iputils-ping netcat-openbsd
+
+# Set the working directory in the container
 WORKDIR /app
 
-# --- START MODIFICATIONS ---
-
-# Install system dependencies needed to build psycopg2 from source
-# and to clean up the apt cache afterwards to keep the image small.
-RUN apt-get update \
-    && apt-get install -y --no-install-recommends gcc libpq-dev build-essential postgresql-client curl \
-    && rm -rf /var/lib/apt/lists/*
-
-# --- END MODIFICATIONS ---
-
-# Copy the requirements file and install Python packages
+# Copy the requirements file and install dependencies first to leverage Docker's layer caching
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy the rest of the application code
+# --- START: Explicitly copy scripts and make them executable ---
+# This ensures your scripts are in the container and can be run.
+COPY ./entrypoint.sh /app/entrypoint.sh
+COPY ./debug.sh /app/debug.sh
+RUN chmod +x /app/entrypoint.sh
+RUN chmod +x /app/debug.sh
+# --- END: Explicitly copy scripts ---
+
+# Copy the rest of your application code into the container
 COPY . .
 
-# Run collectstatic to gather all Django static files
-RUN SECRET_KEY="dummy-key-for-build-only" DATABASE_URL="sqlite:///db.sqlite3" python manage.py collectstatic --no-input
-
-# Expose the port Gunicorn will run on
-EXPOSE 8000
-
-
-RUN chmod +x /app/entrypoint.sh
-# Run the entrypoint script to migrate the database and start Gunicorn
-CMD ["/app/entrypoint.sh"]
+# NOTE: We are NOT using a CMD or ENTRYPOINT instruction here because
+# we are providing the start command in the App Runner console.

@@ -207,27 +207,37 @@ CORS_ALLOW_HEADERS = [
 
 # Plaid API configuration
 PLAID_CLIENT_ID = os.getenv('PLAID_CLIENT_ID')
-PLAID_SECRET = os.getenv('PLAID_SANDBOX_SECRET') # Use sandbox secret for development
+PLAID_SANDBOX_SECRET = os.getenv('PLAID_SANDBOX_SECRET') # Correctly look for the sandbox secret
 PLAID_ENV = os.getenv('PLAID_ENV', 'sandbox')
-# Convert comma-separated strings from .env to lists
 PLAID_PRODUCTS = [Products(p) for p in os.getenv('PLAID_PRODUCTS', 'transactions').split(',')]
 PLAID_COUNTRY_CODES = [CountryCode(c) for c in os.getenv('PLAID_COUNTRY_CODES', 'US').split(',')]
 APP_NAME = os.getenv('APP_NAME', 'My Finance App')
 
-# Configure Plaid client
-host = plaid.Environment.Sandbox  # Default to Sandbox
-if PLAID_ENV == 'development':
-    host = plaid.Environment.Development
-if PLAID_ENV == 'production':
-    host = plaid.Environment.Production
+# --- START: MODIFIED CODE ---
 
-configuration = plaid.Configuration(
-    host=host,
-    api_key={
-        'clientId': PLAID_CLIENT_ID,
-        'secret': PLAID_SECRET,
+# Initialize PLAID_CLIENT to None.
+# This prevents the app from crashing if keys are missing on startup.
+PLAID_CLIENT = None
+
+# Only configure the client if all necessary keys are present.
+if PLAID_CLIENT_ID and PLAID_SANDBOX_SECRET and PLAID_ENV:
+    host_map = {
+        'sandbox': plaid.Environment.Sandbox,
+        'development': plaid.Environment.Development,
+        'production': plaid.Environment.Production,
     }
-)
+    host = host_map.get(PLAID_ENV, plaid.Environment.Sandbox)
 
-api_client = plaid.ApiClient(configuration)
-PLAID_CLIENT = plaid_api.PlaidApi(api_client)
+    configuration = plaid.Configuration(
+        host=host,
+        api_key={
+            'clientId': PLAID_CLIENT_ID,
+            'secret': PLAID_SANDBOX_SECRET, # Use the correct variable here
+        }
+    )
+    api_client = plaid.ApiClient(configuration)
+    PLAID_CLIENT = plaid_api.PlaidApi(api_client)
+    print("Plaid client configured successfully.")
+else:
+    # This message will appear in your logs if any key is missing.
+    print("Plaid client not configured due to missing environment variables.")
