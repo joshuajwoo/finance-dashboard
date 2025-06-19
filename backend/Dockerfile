@@ -1,30 +1,38 @@
-# Use an official Python runtime as a parent image
-FROM python:3.12-slim
+# --- STAGE 1: Build Stage ---
+FROM python:3.12-slim as builder
 
-# Set environment variables to prevent Python from writing .pyc files
-ENV PYTHONDONTWRITEBYTECODE 1
-ENV PYTHONUNBUFFERED 1
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
 
-# Add networking tools for debugging (from our previous step)
-RUN apt-get update && apt-get install -y postgresql-client iputils-ping netcat-openbsd
+# Install system dependencies needed for building Python packages
+RUN apt-get update && apt-get install -y build-essential libpq-dev
 
-# Set the working directory in the container
 WORKDIR /app
 
-# Copy the requirements file and install dependencies first to leverage Docker's layer caching
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+# Create a wheelhouse for faster installation in the next stage
+RUN pip wheel --no-cache-dir --wheel-dir /app/wheels -r requirements.txt
 
-# --- START: Explicitly copy scripts and make them executable ---
-# This ensures your scripts are in the container and can be run.
-COPY ./entrypoint.sh /app/entrypoint.sh
-COPY ./debug.sh /app/debug.sh
-RUN chmod +x /app/entrypoint.sh
-RUN chmod +x /app/debug.sh
-# --- END: Explicitly copy scripts ---
 
-# Copy the rest of your application code into the container
-COPY . .
+# --- STAGE 2: Final Stage ---
+FROM python:3.12-slim
 
-# NOTE: We are NOT using a CMD or ENTRYPOINT instruction here because
-# we are providing the start command in the App Runner console.
+# Create a non-root user for better security
+RUN useradd --create-home appuser
+WORKDIR /home/appuser
+
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+
+# Install only necessary runtime system dependencies
+RUN apt-get update && apt-get install -y libpq-dev && rm -rf /var/lib/apt/lists/*
+
+# Copy pre-built wheels from the builder stage and install them
+COPY --from=builder /app/wheels /wheels
+RUN pip install --no-cache /wheels/*
+
+# Copy the application code into the container and set ownership
+COPY --chown=appuser:appuser . .
+
+# Switch to the non-root user
+USER appuser

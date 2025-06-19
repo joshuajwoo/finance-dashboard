@@ -3,7 +3,7 @@ from .views import UserCreateView, ProtectedDataView, CreateLinkTokenView, SetAc
 from django.http import JsonResponse
 
 def health_check(request):
-    return JsonResponse({"status": "ok", "message": "Final deployment check at 6:40 PM"})
+    return JsonResponse({"status": "ok", "message": "Core API is running!"})
 
 urlpatterns = [
     path('', health_check, name='health-check'),
