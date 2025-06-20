@@ -1,4 +1,3 @@
-// src/components/RegistrationPage.js
 import React, { useState } from 'react';
 import axiosInstance from '../api/axiosInstance';
 import { useNavigate, Link } from 'react-router-dom';
@@ -9,40 +8,29 @@ function RegistrationPage() {
   const [password, setPassword] = useState('');
   const [password2, setPassword2] = useState('');
   const [errors, setErrors] = useState([]);
-  
   const navigate = useNavigate();
 
   const handleSubmit = async (event) => {
     event.preventDefault();
     setErrors([]);
-
     if (password !== password2) {
       setErrors(['Passwords do not match!']);
       return;
     }
-
     try {
       const payload = { username, password, email };
       await axiosInstance.post('/core/register/', payload);
-
       setErrors(['Registration successful! Redirecting to login...']);
-
-      setTimeout(() => {
-        navigate('/login');
-      }, 2000);
-
+      setTimeout(() => navigate('/login'), 2000);
     } catch (error) {
       console.error('Registration error:', error.response ? error.response.data : error.message);
-      
       if (error.response && error.response.data) {
         const backendErrors = error.response.data;
         const errorMessages = [];
-        
         for (const key in backendErrors) {
-          const message = backendErrors[key].join(' ');
+          const message = Array.isArray(backendErrors[key]) ? backendErrors[key].join(' ') : String(backendErrors[key]);
           errorMessages.push(message);
         }
-
         setErrors(errorMessages);
       } else {
         setErrors(['Registration failed: An unexpected error occurred.']);
@@ -51,7 +39,7 @@ function RegistrationPage() {
   };
 
   return (
-    <div className="login-page-content-wrapper"> 
+    <div className="login-page-content-wrapper">
       <h2>Register New Account</h2>
       <form onSubmit={handleSubmit} className="login-form-container">
         <div>
@@ -72,20 +60,15 @@ function RegistrationPage() {
         </div>
         <button type="submit">Register</button>
       </form>
-
       {errors.length > 0 && (
-        <div className="form-message-container">
+        <div>
           {errors.map((error, index) => (
-            // --- START MODIFICATION 2: Simplify color logic ---
-            // Any message is red, unless it's the specific success message.
-            <p key={index} className="registration-form-message" style={{ color: error.startsWith('Registration successful') ? 'green' : 'red' }}>
+            <p key={index} style={{ color: error.startsWith('Registration successful') ? 'green' : 'red' }}>
               {error}
             </p>
-            // --- END MODIFICATION 2 ---
           ))}
         </div>
       )}
-
       <p style={{ marginTop: '20px' }}>
         Already have an account? <Link to="/login">Login here</Link>
       </p>

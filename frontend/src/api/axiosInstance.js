@@ -1,14 +1,11 @@
 import axios from 'axios';
 
-// --- FIX for Login Issue ---
-// Hardcode the backend URL to prevent the '/undefined/' error.
 const API_URL = 'https://4mhtisp2gx.us-west-2.awsapprunner.com';
 
 const axiosInstance = axios.create({
-  baseURL: `${API_URL}/api/`, // The base for all API calls
+  baseURL: `${API_URL}/api/`,
 });
 
-// Request Interceptor: Adds the auth token to every outgoing request
 axiosInstance.interceptors.request.use(
   (config) => {
     const accessToken = localStorage.getItem('accessToken');
@@ -20,17 +17,13 @@ axiosInstance.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// Response Interceptor: Handles expired access tokens and retries requests
 axiosInstance.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
 
-    // --- FIX for Dashboard Crash ---
-    // Safely check if error.response exists before trying to read its status.
     if (error.response && error.response.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
-
       const refreshToken = localStorage.getItem('refreshToken');
       if (refreshToken) {
         try {

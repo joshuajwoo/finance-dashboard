@@ -1,5 +1,5 @@
 import React, { useCallback } from 'react';
-import axiosInstance from '../api/axiosInstance'; // Corrected import
+import axiosInstance from '../api/axiosInstance';
 
 const PlaidLinkButton = ({ onLinkSuccess }) => {
   const onSuccess = useCallback((public_token, metadata) => {
@@ -10,21 +10,15 @@ const PlaidLinkButton = ({ onLinkSuccess }) => {
   const createLinkTokenAndOpenLink = async () => {
     try {
       console.log('Requesting link_token from backend...');
-      const response = await axiosInstance.post(
-        '/core/create-link-token/',
-        {}
-      );
+      const response = await axiosInstance.post('/core/create-link-token/', {});
       const linkToken = response.data.link_token;
-      console.log('link_token received:', linkToken);
-
+      
       const handler = window.Plaid.create({
         token: linkToken,
         onSuccess: onSuccess,
       });
 
-      console.log('Opening Plaid Link modal...');
       handler.open();
-
     } catch (error) {
       console.error('Error in Plaid Link flow:', error);
     }
