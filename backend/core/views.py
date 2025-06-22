@@ -146,3 +146,5 @@ class TransactionsView(APIView):
         except Exception as e:
             print(f"An unexpected error occurred in TransactionsView: {e}")
             return JsonResponse({'error': str(e)}, status=500)
+class MyTokenObtainPairView(TokenObtainPairView):
+    serializer_class = MyTokenObtainPairSerializer

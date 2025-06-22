@@ -1,38 +1,26 @@
-# --- STAGE 1: Build Stage ---
-FROM python:3.12-slim as builder
-
-ENV PYTHONDONTWRITEBYTECODE=1
-ENV PYTHONUNBUFFERED=1
-
-# Install system dependencies needed for building Python packages
-RUN apt-get update && apt-get install -y build-essential libpq-dev
-
-WORKDIR /app
-
-COPY requirements.txt .
-# Create a wheelhouse for faster installation in the next stage
-RUN pip wheel --no-cache-dir --wheel-dir /app/wheels -r requirements.txt
-
-
-# --- STAGE 2: Final Stage ---
+# Use an official Python runtime as a parent image
 FROM python:3.12-slim
 
-# Create a non-root user for better security
-RUN useradd --create-home appuser
-WORKDIR /home/appuser
-
+# Set environment variables
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 
-# Install only necessary runtime system dependencies
-RUN apt-get update && apt-get install -y libpq-dev && rm -rf /var/lib/apt/lists/*
+# Install system dependencies for psycopg2 AND our networking tools
+# --no-install-recommends keeps the image smaller
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libpq-dev \
+    build-essential \
+    postgresql-client \
+    iputils-ping \
+    netcat-openbsd \
+    && rm -rf /var/lib/apt/lists/*
 
-# Copy pre-built wheels from the builder stage and install them
-COPY --from=builder /app/wheels /wheels
-RUN pip install --no-cache /wheels/*
+# Set the working directory
+WORKDIR /app
 
-# Copy the application code into the container and set ownership
-COPY --chown=appuser:appuser . .
+# Copy and install Python packages
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
 
-# Switch to the non-root user
-USER appuser
+# Copy the rest of the application code
+COPY . .
