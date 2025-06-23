@@ -9,10 +9,7 @@ from rest_framework_simplejwt.views import (
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-
-    # Use the default, out-of-the-box view for the login endpoint
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
-
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('api/core/', include('core.urls')),
 ]

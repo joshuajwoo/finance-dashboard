@@ -1,12 +1,9 @@
-# finance-dashboard/docker-compose.yml
-
+# In finance-dashboard/docker-compose.yml
 services:
   db:
     image: postgres:15-alpine
-    container_name: finance-db-prod
     volumes:
       - postgres_data:/var/lib/postgresql/data/
-    # This automatically reads POSTGRES_DB, POSTGRES_USER, POSTGRES_PASSWORD from the root .env file
     environment:
       - POSTGRES_DB=${POSTGRES_DB}
       - POSTGRES_USER=${POSTGRES_USER}
@@ -14,25 +11,26 @@ services:
 
   backend:
     build: ./backend
-    container_name: finance-backend-prod
     command: /app/entrypoint.sh
-    # This environment block reads all necessary variables from the root .env file
+    ports:
+      - "8000:8000"
     environment:
       - SECRET_KEY=${SECRET_KEY}
       - DEBUG=${DEBUG}
       - ALLOWED_HOSTS=${ALLOWED_HOSTS}
-      - DATABASE_URL=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+      - DB_NAME=${POSTGRES_DB}
+      - DB_USER=${POSTGRES_USER}
+      - DB_PASSWORD=${POSTGRES_PASSWORD}
+      - DB_HOST=db
+      - DB_PORT=5432
       - PLAID_CLIENT_ID=${PLAID_CLIENT_ID}
       - PLAID_SANDBOX_SECRET=${PLAID_SANDBOX_SECRET}
       - PLAID_ENV=${PLAID_ENV}
-    ports:
-      - "8000:8000"
     depends_on:
       - db
 
   frontend:
     build: ./frontend
-    container_name: finance-frontend-prod
     ports:
       - "3000:80"
     depends_on:
