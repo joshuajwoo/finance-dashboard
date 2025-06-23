@@ -1,38 +1,37 @@
+# finance-dashboard/docker-compose.yml
+
 services:
   db:
     image: postgres:15-alpine
     container_name: finance-db-prod
     volumes:
       - postgres_data:/var/lib/postgresql/data/
+    # This automatically reads POSTGRES_DB, POSTGRES_USER, POSTGRES_PASSWORD from the root .env file
     environment:
-      - POSTGRES_USER=postgres
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-      - POSTGRES_DB=financedb
 
   backend:
-    # Use the more explicit object format for the build instruction
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
+    build: ./backend
     container_name: finance-backend-prod
     command: /app/entrypoint.sh
-    env_file:
-      - ./backend/.env
+    # This environment block reads all necessary variables from the root .env file
     environment:
-      - DATABASE_URL=postgres://postgres:jUnGiTw00!@db:5432/financedb
       - SECRET_KEY=${SECRET_KEY}
-      - DEBUG=False
-      - ALLOWED_HOSTS=localhost,127.0.0.1,frontend
+      - DEBUG=${DEBUG}
+      - ALLOWED_HOSTS=${ALLOWED_HOSTS}
+      - DATABASE_URL=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+      - PLAID_CLIENT_ID=${PLAID_CLIENT_ID}
+      - PLAID_SANDBOX_SECRET=${PLAID_SANDBOX_SECRET}
+      - PLAID_ENV=${PLAID_ENV}
     ports:
       - "8000:8000"
     depends_on:
       - db
 
   frontend:
-    # Use the more explicit object format for the build instruction
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
+    build: ./frontend
     container_name: finance-frontend-prod
     ports:
       - "3000:80"

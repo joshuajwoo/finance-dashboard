@@ -13,8 +13,20 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.getenv('SECRET_KEY')
 DEBUG = os.getenv('DEBUG', 'False') == 'True'
 
-# This reads the host from the environment variable set in App Runner.
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = []
+
+# For production, read hosts from specific environment variables
+BACKEND_HOST = os.getenv('BACKEND_HOST')
+if BACKEND_HOST:
+    ALLOWED_HOSTS.append(BACKEND_HOST)
+
+FRONTEND_HOST = os.getenv('FRONTEND_HOST')
+if FRONTEND_HOST:
+    ALLOWED_HOSTS.append(FRONTEND_HOST)
+
+# For local development when DEBUG is True
+if DEBUG:
+    ALLOWED_HOSTS.extend(['localhost', '127.0.0.1'])
 
 INSTALLED_APPS = ['django.contrib.admin', 'django.contrib.auth', 'django.contrib.contenttypes', 'django.contrib.sessions', 'django.contrib.messages', 'django.contrib.staticfiles', 'corsheaders', 'core', 'rest_framework', 'rest_framework_simplejwt']
 MIDDLEWARE = ['corsheaders.middleware.CorsMiddleware', 'django.middleware.security.SecurityMiddleware', 'whitenoise.middleware.WhiteNoiseMiddleware', 'django.contrib.sessions.middleware.SessionMiddleware', 'django.middleware.common.CommonMiddleware', 'django.middleware.csrf.CsrfViewMiddleware', 'django.contrib.auth.middleware.AuthenticationMiddleware', 'django.contrib.messages.middleware.MessageMiddleware', 'django.middleware.clickjacking.XFrameOptionsMiddleware']
@@ -58,22 +70,21 @@ PLAID_SANDBOX_SECRET = os.getenv('PLAID_SANDBOX_SECRET')
 PLAID_ENV = os.getenv('PLAID_ENV', 'sandbox')
 PLAID_PRODUCTS = [Products(p) for p in os.getenv('PLAID_PRODUCTS', 'transactions').split(',')]
 PLAID_COUNTRY_CODES = [CountryCode(c) for c in os.getenv('PLAID_COUNTRY_CODES', 'US').split(',')]
-APP_NAME = os.getenv('APP_NAME', 'My Finance App')
 
-PLAID_CLIENT = None
-if PLAID_CLIENT_ID and PLAID_SANDBOX_SECRET and PLAID_ENV:
-    host_map = {
-        'sandbox': plaid.Environment.Sandbox,
-        'development': plaid.Environment.Development,
-        'production': plaid.Environment.Production,
+# Configure Plaid client
+host = plaid.Environment.Sandbox
+if PLAID_ENV == 'development':
+    host = plaid.Environment.Development
+if PLAID_ENV == 'production':
+    host = plaid.Environment.Production
+
+configuration = plaid.Configuration(
+    host=host,
+    api_key={
+        'clientId': PLAID_CLIENT_ID,
+        'secret': PLAID_SANDBOX_SECRET,
     }
-    host = host_map.get(PLAID_ENV)
-    if host:
-        configuration = plaid.Configuration(host=host, api_key={'clientId': PLAID_CLIENT_ID, 'secret': PLAID_SANDBOX_SECRET})
-        api_client = plaid.ApiClient(configuration)
-        PLAID_CLIENT = plaid_api.PlaidApi(api_client)
-        print("Plaid client configured successfully.")
-    else:
-        print(f"Invalid PLAID_ENV value: {PLAID_ENV}. Plaid client not configured.")
-else:
-    print("Plaid client not configured due to missing environment variables.")
+)
+
+api_client = plaid.ApiClient(configuration)
+PLAID_CLIENT = plaid_api.PlaidApi(api_client)
