@@ -1,6 +1,5 @@
 # Ignore dependencies and build artifacts
 node_modules
-build
 coverage
 
 # Ignore local env files
