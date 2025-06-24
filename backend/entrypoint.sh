@@ -1,8 +1,12 @@
 #!/bin/sh
 set -e
 
-echo "--- Applying database migrations... ---"
-python manage.py migrate --no-input
+echo "--- APP RUNNER DIAGNOSTIC TEST ---"
+echo "This script is testing if logs are being captured."
+echo "Date: $(date)"
+echo "--------------------------------"
+echo "PRINTING ALL ENVIRONMENT VARIABLES:"
 
-echo "--- Starting Gunicorn server... ---"
-exec gunicorn --bind 0.0.0.0:8000 fininsight_ai_backend.wsgi:application
+printenv
+
+echo "--- DIAGNOSTIC SCRIPT FINISHED ---"

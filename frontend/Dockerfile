@@ -1,18 +1,31 @@
-# Final, simplified frontend/Dockerfile
+# frontend/Dockerfile
 
-# STAGE 1: We no longer need a Node.js build stage.
-# We will start directly from the Nginx image.
+# --- Build Stage ---
+FROM node:18-alpine as builder
+
+WORKDIR /app
+
+# Copy package files and install dependencies
+COPY package.json package-lock.json ./
+RUN npm ci
+
+# Copy the rest of the application files
+COPY . .
+
+# Build the React application
+RUN npm run build
+
+# --- Final Stage ---
 FROM nginx:1.25-alpine
 
-# STAGE 2: Serve the application with Nginx
+# Copy the built React app to Nginx's web server directory
+COPY --from=builder /app/build /usr/share/nginx/html
 
-# Copy your locally-built 'build' folder into Nginx's web root directory.
-# The 'build/' has a slash to copy its contents.
-COPY build/ /usr/share/nginx/html
-
-# Copy your Nginx configuration file.
+# Copy the Nginx configuration
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
-# Expose port 80 and start Nginx.
+# Expose port 80
 EXPOSE 80
+
+# Start Nginx
 CMD ["nginx", "-g", "daemon off;"]
