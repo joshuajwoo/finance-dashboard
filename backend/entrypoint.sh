@@ -1,12 +1,19 @@
 #!/bin/sh
+
+# Exit immediately if a command exits with a non-zero status.
 set -e
 
-echo "--- APP RUNNER DIAGNOSTIC TEST ---"
-echo "This script is testing if logs are being captured."
-echo "Date: $(date)"
-echo "--------------------------------"
-echo "PRINTING ALL ENVIRONMENT VARIABLES:"
+# Apply database migrations
+echo "Applying database migrations..."
+python manage.py migrate
 
-printenv
+# Collect static files
+# The --no-input flag is important for non-interactive environments
+echo "Collecting static files..."
+python manage.py collectstatic --no-input
 
-echo "--- DIAGNOSTIC SCRIPT FINISHED ---"
+# Start Gunicorn server
+# We bind to 0.0.0.0 to allow traffic from outside the container.
+# The port is 8000, which we EXPOSE in the Dockerfile.
+echo "Starting Gunicorn server..."
+gunicorn fininsight_ai_backend.wsgi:application --bind 0.0.0.0:8000

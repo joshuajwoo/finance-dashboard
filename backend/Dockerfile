@@ -1,35 +1,32 @@
-# backend/Dockerfile
+# 1. Base Image
+FROM python:3.11-slim
 
-# --- Build Stage ---
-FROM python:3.11-slim as builder
+# 2. Set Environment Variables
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
 
-WORKDIR /app
-
-# Install build dependencies
-RUN apt-get update && apt-get install -y --no-install-recommends \
+# 3. Install System Dependencies
+# Required for psycopg2 to connect to PostgreSQL
+RUN apt-get update && apt-get install -y \
     build-essential \
     libpq-dev \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy requirements and install dependencies
-COPY requirements.txt .
-RUN pip wheel --no-cache-dir --wheel-dir /wheels -r requirements.txt
-
-
-# --- Final Stage ---
-FROM python:3.11-slim
-
+# 4. Set Working Directory
 WORKDIR /app
 
-# Install production dependencies from wheelhouse
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    libpq-dev \
-    && rm -rf /var/lib/apt/lists/*
-COPY --from=builder /wheels /wheels
-RUN pip install --no-cache /wheels/*
+# 5. Install Python Dependencies
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy application code
+# 6. Copy Application Code
 COPY . .
 
-# Set entrypoint
+# 7. Make entrypoint script executable and set entrypoint
+COPY ./entrypoint.sh /app/entrypoint.sh
+RUN chmod +x /app/entrypoint.sh
 ENTRYPOINT ["/app/entrypoint.sh"]
+
+# 8. Expose Port
+# The port Gunicorn will run on
+EXPOSE 8000

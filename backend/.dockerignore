@@ -1,12 +1,19 @@
-# Ignore Python virtual environment
-venv/
+# Git
+.git
+.gitignore
 
-# Ignore Python cache files
+# Python
 __pycache__/
 *.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
 
-# Ignore local environment variables file
+# Local development
 .env
+db.sqlite3
 
-# Ignore log files
+# Logs
 *.log
