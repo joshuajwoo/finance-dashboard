@@ -9,6 +9,7 @@ phases:
     commands:
       - echo Build started on `date`
       - echo Building the frontend Docker image...
+      - cd frontend
       - IMAGE_TAG=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
       - docker build -t $REPOSITORY_URI:$IMAGE_TAG .
   post_build:
