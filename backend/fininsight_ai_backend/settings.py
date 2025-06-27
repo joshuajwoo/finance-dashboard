@@ -13,20 +13,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.getenv('SECRET_KEY')
 DEBUG = os.getenv('DEBUG', 'False') == 'True'
 
-ALLOWED_HOSTS = []
-
-# For production, read hosts from specific environment variables
-BACKEND_HOST = os.getenv('BACKEND_HOST')
-if BACKEND_HOST:
-    ALLOWED_HOSTS.append(BACKEND_HOST)
-
-HOST = os.getenv('FRONTEND_HOST')
-if FRONTEND_HOST:
-    ALLOWED_HOSTS.append(FRONTEND_HOST)
-
-# For local development when DEBUG is True
-if DEBUG:
-    ALLOWED_HOSTS.extend(['localhost', '127.0.0.1'])
+# This allows access from the load balancer's health checks and any other source.
+# For a real-world production site, you would lock this down further.
+ALLOWED_HOSTS = ["*"]
 
 INSTALLED_APPS = ['django.contrib.admin', 'django.contrib.auth', 'django.contrib.contenttypes', 'django.contrib.sessions', 'django.contrib.messages', 'django.contrib.staticfiles', 'corsheaders', 'core', 'rest_framework', 'rest_framework_simplejwt']
 MIDDLEWARE = ['corsheaders.middleware.CorsMiddleware', 'django.middleware.security.SecurityMiddleware', 'whitenoise.middleware.WhiteNoiseMiddleware', 'django.contrib.sessions.middleware.SessionMiddleware', 'django.middleware.common.CommonMiddleware', 'django.middleware.csrf.CsrfViewMiddleware', 'django.contrib.auth.middleware.AuthenticationMiddleware', 'django.contrib.messages.middleware.MessageMiddleware', 'django.middleware.clickjacking.XFrameOptionsMiddleware']
