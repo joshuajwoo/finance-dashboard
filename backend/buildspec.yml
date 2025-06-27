@@ -1,6 +1,12 @@
 version: 0.2
 
 phases:
+  install:
+    runtime-versions:
+      docker: 20
+    commands:
+      - echo "Installing jq..."
+      - dnf install -y jq
   pre_build:
     commands:
       # Login to Docker Hub
