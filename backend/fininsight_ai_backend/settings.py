@@ -20,7 +20,7 @@ BACKEND_HOST = os.getenv('BACKEND_HOST')
 if BACKEND_HOST:
     ALLOWED_HOSTS.append(BACKEND_HOST)
 
-FRONTEND_HOST = os.getenv('FRONTEND_HOST')
+HOST = os.getenv('FRONTEND_HOST')
 if FRONTEND_HOST:
     ALLOWED_HOSTS.append(FRONTEND_HOST)
 
@@ -44,9 +44,6 @@ DATABASES = {
         'PASSWORD': os.getenv('DB_PASSWORD'),
         'HOST': os.getenv('DB_HOST'),
         'PORT': os.getenv('DB_PORT'),
-        'OPTIONS': {
-            'sslmode': 'require' # Enforce SSL connection
-        },
     }
 }
 AUTH_PASSWORD_VALIDATORS = [{'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'}, {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator'}, {'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator'}, {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'}]
