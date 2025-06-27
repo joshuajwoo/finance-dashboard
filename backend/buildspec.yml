@@ -3,28 +3,23 @@ version: 0.2
 phases:
   pre_build:
     commands:
-      # Install jq for parsing secrets
-      - echo "Installing jq..."
+      - echo "Installing jq for parsing secrets..."
       - dnf install -y jq
-      # Login to Docker Hub
       - echo "Logging in to Docker Hub..."
       - DOCKERHUB_SECRET=$(aws secretsmanager get-secret-value --secret-id dockerhub-credentials --query SecretString --output text)
       - DOCKERHUB_USER=$(echo $DOCKERHUB_SECRET | jq -r .DOCKERHUB_USERNAME)
       - DOCKERHUB_PASS=$(echo $DOCKERHUB_SECRET | jq -r .DOCKERHUB_TOKEN)
       - echo $DOCKERHUB_PASS | docker login --username $DOCKERHUB_USER --password-stdin
-      # Login to Amazon ECR
       - echo "Logging in to Amazon ECR..."
       - aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.us-west-2.amazonaws.com
   build:
     commands:
-      - echo Build started on `date`
-      - echo Building the Docker image...
-      - if [ -f backend/manage.py ]; then cd backend; fi
-      - if [ -f frontend/package.json ]; then cd frontend; fi
+      - echo "Changing directory to backend..."
+      - cd backend
       - IMAGE_TAG=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
+      - echo "Building backend image with tag: $IMAGE_TAG"
       - docker build -t $REPOSITORY_URI:$IMAGE_TAG .
   post_build:
     commands:
-      - echo Build completed on `date`
-      - echo Pushing the Docker image...
+      - echo "Pushing backend image..."
       - docker push $REPOSITORY_URI:$IMAGE_TAG
