@@ -3,7 +3,7 @@ version: 0.2
 phases:
   pre_build:
     commands:
-      - echo "Installing jq for parsing secrets..."
+      - echo "Installing jq..."
       - dnf install -y jq
       - echo "Logging in to Docker Hub..."
       - DOCKERHUB_SECRET=$(aws secretsmanager get-secret-value --secret-id dockerhub-credentials --query SecretString --output text)
@@ -14,10 +14,10 @@ phases:
       - aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.us-west-2.amazonaws.com
   build:
     commands:
-      - echo "Build started, changing to 'frontend' directory..."
+      - echo "Changing to frontend directory..."
       - cd frontend
+      - echo "Building frontend image..."
       - IMAGE_TAG=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
-      - echo "Building frontend image with tag: $IMAGE_TAG"
       - docker build -t $REPOSITORY_URI:$IMAGE_TAG .
   post_build:
     commands:
