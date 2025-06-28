@@ -8,6 +8,9 @@ from plaid.model.country_code import CountryCode
 from plaid.model.products import Products
 import dj_database_url
 
+
+APP_NAME = "FinInsight AI"
+
 load_dotenv()
 BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.getenv('SECRET_KEY')
@@ -54,8 +57,8 @@ CORS_ALLOW_HEADERS = ['Authorization', 'Content-Type']
 PLAID_CLIENT_ID = os.getenv('PLAID_CLIENT_ID')
 PLAID_SANDBOX_SECRET = os.getenv('PLAID_SANDBOX_SECRET')
 PLAID_ENV = os.getenv('PLAID_ENV', 'sandbox')
-PLAID_PRODUCTS = [Products(p) for p in os.getenv('PLAID_PRODUCTS', 'transactions').split(',')]
-PLAID_COUNTRY_CODES = [CountryCode(c) for c in os.getenv('PLAID_COUNTRY_CODES', 'US').split(',')]
+PLAID_PRODUCTS = [Products('transactions')]
+PLAID_COUNTRY_CODES = [CountryCode('US')]
 
 # Configure Plaid client
 host = plaid.Environment.Sandbox
