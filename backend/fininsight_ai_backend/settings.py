@@ -8,7 +8,6 @@ from plaid.model.country_code import CountryCode
 from plaid.model.products import Products
 import dj_database_url
 
-
 APP_NAME = "FinInsight AI"
 
 load_dotenv()
