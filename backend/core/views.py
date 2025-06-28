@@ -16,6 +16,7 @@ from datetime import datetime, timedelta
 import plaid
 from rest_framework_simplejwt.views import TokenObtainPairView
 from .serializers import MyTokenObtainPairSerializer
+from ml_model.transaction_classifier import TransactionClassifier
 
 
 class MyTokenObtainPairView(TokenObtainPairView):
@@ -108,6 +109,8 @@ class TransactionsView(APIView):
         plaid_items = PlaidItem.objects.filter(user=request.user)
         if not plaid_items.exists():
             return Response({'error': 'No bank accounts linked.'}, status=404)
+                
+        classifier = TransactionClassifier()
         try:
             end_date_str = request.query_params.get('end_date', datetime.now().date().isoformat())
             start_date_str = request.query_params.get('start_date', (datetime.now().date() - timedelta(days=30)).isoformat())
@@ -118,18 +121,26 @@ class TransactionsView(APIView):
                 access_token = item.access_token
                 plaid_request = {"access_token": access_token, "start_date": start_date, "end_date": end_date}
                 response = settings.PLAID_CLIENT.transactions_get(plaid_request)
+
                 for plaid_transaction in response['transactions']:
                     try:
                         account = Account.objects.get(plaid_account_id=plaid_transaction['account_id'])
+
+                        # Use the classifier to predict the category
+                        transaction_name = plaid_transaction['name']
+                        predicted_category = classifier.predict(transaction_name)
+
                         Transaction.objects.update_or_create(
                             plaid_transaction_id=plaid_transaction['transaction_id'],
                             defaults={
                                 'account': account,
-                                'name': plaid_transaction['name'],
+                                'name': transaction_name,
                                 'amount': plaid_transaction['amount'],
                                 'iso_currency_code': plaid_transaction['iso_currency_code'],
                                 'date': plaid_transaction['date'],
                                 'pending': plaid_transaction['pending'],
+                                # Save the predicted category to the database
+                                'category': predicted_category 
                             }
                         )
                     except Account.DoesNotExist:
