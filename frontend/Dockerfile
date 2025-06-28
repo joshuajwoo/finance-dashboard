@@ -23,3 +23,6 @@ COPY --from=build /app/build /usr/share/nginx/html
 
 # This opens the port for the Nginx server.
 EXPOSE 80
+
+COPY entrypoint.sh /
+ENTRYPOINT ["/entrypoint.sh"]
