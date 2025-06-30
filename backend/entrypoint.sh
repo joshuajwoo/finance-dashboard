@@ -16,4 +16,4 @@ python manage.py collectstatic --no-input
 # We bind to 0.0.0.0 to allow traffic from outside the container.
 # The port is 8000, which we EXPOSE in the Dockerfile.
 echo "Starting Gunicorn server with debug logging..."
-gunicorn fininsight_ai_backend.wsgi:application --bind 0.0.0.0:8000
+gunicorn fininsight_ai_backend.wsgi:application --bind 0.0.0.0:8000 --log-level debug --log-file - --timeout 120
