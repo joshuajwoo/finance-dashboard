@@ -60,19 +60,3 @@ PLAID_PRODUCTS = [Products('transactions')]
 PLAID_COUNTRY_CODES = [CountryCode('US')]
 
 # Configure Plaid client
-host = plaid.Environment.Sandbox
-if PLAID_ENV == 'development':
-    host = plaid.Environment.Development
-if PLAID_ENV == 'production':
-    host = plaid.Environment.Production
-
-configuration = plaid.Configuration(
-    host=host,
-    api_key={
-        'clientId': PLAID_CLIENT_ID,
-        'secret': PLAID_SANDBOX_SECRET,
-    }
-)
-
-api_client = plaid.ApiClient(configuration)
-PLAID_CLIENT = plaid_api.PlaidApi(api_client)

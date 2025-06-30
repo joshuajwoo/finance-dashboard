@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from django.contrib.auth.models import User
-from rest_framework import generics, permissions
+from rest_framework import generics, permissions, status
 from .serializers import UserSerializer, TransactionSerializer
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -16,6 +16,26 @@ from datetime import datetime, timedelta
 import plaid
 from rest_framework_simplejwt.views import TokenObtainPairView
 from .serializers import MyTokenObtainPairSerializer
+from plaid.api import plaid_api
+
+# Helper function to initialize the Plaid client
+def get_plaid_client():
+    host = plaid.Environment.Sandbox
+    if settings.PLAID_ENV == 'development':
+        host = plaid.Environment.Development
+    elif settings.PLAID_ENV == 'production':
+        host = plaid.Environment.Production
+    
+    configuration = plaid.Configuration(
+        host=host,
+        api_key={
+            'clientId': settings.PLAID_CLIENT_ID,
+            'secret': settings.PLAID_SANDBOX_SECRET,
+        }
+    )
+    api_client = plaid.ApiClient(configuration)
+    return plaid_api.PlaidApi(api_client)
+
 
 class MyTokenObtainPairView(TokenObtainPairView):
     serializer_class = MyTokenObtainPairSerializer
@@ -39,8 +59,7 @@ class CreateLinkTokenView(APIView):
     permission_classes = [IsAuthenticated]
     def post(self, request):
         try:
-            if not settings.PLAID_CLIENT:
-                raise Exception("Plaid client is not configured. Check environment variables.")
+            plaid_client = get_plaid_client() # Initialize client here
             plaid_request = LinkTokenCreateRequest(
                 user=LinkTokenCreateRequestUser(client_user_id=str(request.user.id)),
                 client_name=settings.APP_NAME,
@@ -48,13 +67,13 @@ class CreateLinkTokenView(APIView):
                 country_codes=settings.PLAID_COUNTRY_CODES,
                 language='en',
             )
-            response = settings.PLAID_CLIENT.link_token_create(plaid_request)
+            response = plaid_client.link_token_create(plaid_request)
             return Response(response.to_dict())
         except ApiException as e:
             error_response = json.loads(e.body)
             return JsonResponse({'error': error_response}, status=e.status)
         except Exception as e:
-            return JsonResponse({'error': 'A generic server error occurred.'}, status=500)
+            return JsonResponse({'error': f'A generic server error occurred: {str(e)}'}, status=500)
 
 class SetAccessTokenView(APIView):
     permission_classes = [IsAuthenticated]
@@ -68,7 +87,8 @@ class SetAccessTokenView(APIView):
         if PlaidItem.objects.filter(user=request.user, institution_id=institution_id).exists():
             return Response({'error': f'You have already linked an account from {institution_name}.'}, status=409)
         try:
-            exchange_response = settings.PLAID_CLIENT.item_public_token_exchange({'public_token': public_token})
+            plaid_client = get_plaid_client() # Initialize client here
+            exchange_response = plaid_client.item_public_token_exchange({'public_token': public_token})
             access_token = exchange_response['access_token']
             item_id = exchange_response['item_id']
             plaid_item = PlaidItem.objects.create(
@@ -79,7 +99,7 @@ class SetAccessTokenView(APIView):
                 institution_id=institution_id
             )
             try:
-                accounts_response = settings.PLAID_CLIENT.accounts_get({'access_token': access_token})
+                accounts_response = plaid_client.accounts_get({'access_token': access_token})
                 for account_data in accounts_response['accounts']:
                     Account.objects.create(
                         plaid_item=plaid_item,
@@ -108,6 +128,7 @@ class TransactionsView(APIView):
         if not plaid_items.exists():
             return Response({'error': 'No bank accounts linked.'}, status=404)
         try:
+            plaid_client = get_plaid_client() # Initialize client here
             end_date_str = request.query_params.get('end_date', datetime.now().date().isoformat())
             start_date_str = request.query_params.get('start_date', (datetime.now().date() - timedelta(days=30)).isoformat())
             start_date = datetime.strptime(start_date_str, '%Y-%m-%d').date()
@@ -116,7 +137,7 @@ class TransactionsView(APIView):
             for item in plaid_items:
                 access_token = item.access_token
                 plaid_request = {"access_token": access_token, "start_date": start_date, "end_date": end_date}
-                response = settings.PLAID_CLIENT.transactions_get(plaid_request)
+                response = plaid_client.transactions_get(plaid_request)
                 for plaid_transaction in response['transactions']:
                     try:
                         account = Account.objects.get(plaid_account_id=plaid_transaction['account_id'])
@@ -138,12 +159,10 @@ class TransactionsView(APIView):
                 account__in=user_accounts, date__gte=start_date, date__lte=end_date
             ).order_by('-date')
             serializer = TransactionSerializer(all_transactions, many=True)
-            return Response(serializer.data) # Return the data directly
+            return Response(serializer.data)
         except ApiException as e:
             error_response = json.loads(e.body)
             return JsonResponse({'error': error_response}, status=e.status)
         except Exception as e:
             print(f"An unexpected error occurred in TransactionsView: {e}")
             return JsonResponse({'error': str(e)}, status=500)
-class MyTokenObtainPairView(TokenObtainPairView):
-    serializer_class = MyTokenObtainPairSerializer
