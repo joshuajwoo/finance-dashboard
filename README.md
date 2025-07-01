@@ -60,13 +60,13 @@ APP_NAME=FinInsight AI
 
 From the root directory, run the following command:
 ```bash
-docker-compose up --build
+docker compose up --build
 ```
 ### 4. Database Migrations and Superuser
 
 The `entrypoint.sh` script automatically runs database migrations. To create a superuser for the Django admin, open a **new terminal window** and run:
 ```bash
-docker-compose exec backend python manage.py createsuperuser
+docker compose exec backend python manage.py createsuperuser
 ```
 ## AWS Deployment Architecture
 
