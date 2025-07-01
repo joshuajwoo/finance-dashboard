@@ -12,7 +12,6 @@ This project is a full-stack web application designed to help users gain insight
 
 ## Tech Stack
 
-| Category     | Technology                                                                                                   |
 | :----------- | :----------------------------------------------------------------------------------------------------------- |
 | **Frontend** | React, `axios` for API calls, `react-router-dom`                                                             |
 | **Backend** | Python, Django, Django REST Framework, Gunicorn                                                              |
