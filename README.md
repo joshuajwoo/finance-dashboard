@@ -43,7 +43,7 @@ Create a file named `.env` in the root directory of the project. This file will 
 SECRET_KEY=your_django_secret_key_here
 DEBUG=True
 ALLOWED_HOSTS=localhost,127.0.0.1,frontend
-```
+
 # Database Settings
 POSTGRES_DB=fininsight_db
 POSTGRES_USER=admin
@@ -56,7 +56,7 @@ PLAID_ENV=sandbox
 
 # App Name (Required by Plaid integration)
 APP_NAME=FinInsight AI
-
+```
 ### 3. Build and Run with Docker Compose
 
 From the root directory, run the following command:
