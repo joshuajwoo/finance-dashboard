@@ -12,62 +12,61 @@ This project is a full-stack web application designed to help users gain insight
 
 ## Tech Stack
 
-| Category      | Technology                                                                                                  |
-| :------------ | :---------------------------------------------------------------------------------------------------------- |
-| **Frontend** | React, `axios` for API calls, `react-router-dom`                                                            |
-| **Backend** | Python, Django, Django REST Framework, Gunicorn                                                             |
-| **Database** | PostgreSQL                                                                                                  |
-| **API/Auth** | RESTful API, `djangorestframework-simplejwt` for JWT authentication, Plaid API for financial data aggregation |
-| **Deployment**| Docker, AWS ECS on Fargate, AWS ECR, AWS CodeBuild (for CI/CD), Application Load Balancer, VPC, Amazon RDS    |
+| Category     | Technology                                                                                                   |
+| :----------- | :----------------------------------------------------------------------------------------------------------- |
+| **Frontend** | React, `axios` for API calls, `react-router-dom`                                                             |
+| **Backend** | Python, Django, Django REST Framework, Gunicorn                                                              |
+| **Database** | PostgreSQL                                                                                                   |
+| **API/Auth** | RESTful API, `djangorestframework-simplejwt`, Plaid API                                                        |
+| **Deployment**| Docker, AWS ECS on Fargate, AWS ECR, AWS CodeBuild (CI/CD), Application Load Balancer, VPC, Amazon RDS     |
 
 ## Local Development Setup
 
-To run this project on your local machine, you will need Docker and Docker Compose installed.
+To run this project on your local machine, you will need **Docker Desktop** installed.
 
-1.  **Clone the Repository**
-    ```bash
-    git clone [https://github.com/joshuajwoo/finance-dashboard.git](https://github.com/joshuajwoo/finance-dashboard.git)
-    cd finance-dashboard
-    ```
+### 1. Clone the Repository
 
-2.  **Create Environment File**
-    Create a file named `.env` in the root directory of the project. This file will hold all your secret keys and configuration variables. Copy the contents of `.env.example` (you should create this file to list the needed variables) and fill in your values.
+```bash
+git clone [https://github.com/joshuajwoo/finance-dashboard.git](https://github.com/joshuajwoo/finance-dashboard.git)
+cd finance-dashboard
 
-    **`.env` file contents:**
-    ```env
-    # Django Settings
-    SECRET_KEY=your_django_secret_key_here
-    DEBUG=True
-    ALLOWED_HOSTS=localhost,127.0.0.1
+### 2. Create Environment File
 
-    # Database Settings
-    POSTGRES_DB=fininsight_db
-    POSTGRES_USER=admin
-    POSTGRES_PASSWORD=your_db_password
+Create a file named `.env` in the root directory of the project. This file will hold all your secret keys and configuration variables.
 
-    # Plaid API Keys
-    PLAID_CLIENT_ID=your_plaid_client_id
-    PLAID_SANDBOX_SECRET=your_plaid_sandbox_secret
-    PLAID_ENV=sandbox # e.g., sandbox, development, or production
+**Important:** Make sure your `.gitignore` file includes `.env` to prevent committing your secrets.
 
-    # Frontend URL (for CORS)
-    FRONTEND_ORIGIN_URL=http://localhost:3000
-    ```
+**`.env` file contents:**
+```env
+# Django Settings
+SECRET_KEY=your_django_secret_key_here
+DEBUG=True
+ALLOWED_HOSTS=localhost,127.0.0.1,frontend
 
-3.  **Build and Run with Docker Compose**
-    From the root directory, run the following command:
-    ```bash
-    docker-compose up --build
-    ```
-    This will build the Docker images for the database, backend, and frontend, and start the services.
-    * The frontend will be available at `http://localhost:3000`.
-    * The backend API will be available at `http://localhost:8000`.
+# Database Settings
+POSTGRES_DB=fininsight_db
+POSTGRES_USER=admin
+POSTGRES_PASSWORD=your_db_password
 
-4.  **Database Migrations and Superuser**
-    The `entrypoint.sh` script automatically runs database migrations. To create a superuser for the Django admin, you can run:
-    ```bash
-    docker-compose exec backend python manage.py createsuperuser
-    ```
+# Plaid API Keys
+PLAID_CLIENT_ID=your_plaid_client_id
+PLAID_SANDBOX_SECRET=your_plaid_sandbox_secret
+PLAID_ENV=sandbox
+
+# App Name (Required by Plaid integration)
+APP_NAME=FinInsight AI
+
+### 3. Build and Run with Docker Compose
+
+From the root directory, run the following command:
+```bash
+docker-compose up --build
+
+### 4. Database Migrations and Superuser
+
+The `entrypoint.sh` script automatically runs database migrations. To create a superuser for the Django admin, open a **new terminal window** and run:
+```bash
+docker-compose exec backend python manage.py createsuperuser
 
 ## AWS Deployment Architecture
 
