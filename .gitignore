@@ -19,10 +19,6 @@
 __pycache__/
 *.pyc
 
-# Ignore the default SQLite database if used during development
-db.sqlite3*
-
-
 # Frontend / Node.js
 # ------------------
 # Adapted from your frontend/.gitignore file to work from the root.
