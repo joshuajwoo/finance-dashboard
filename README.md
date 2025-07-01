@@ -8,7 +8,7 @@ This project is a full-stack web application designed to help users gain insight
 * **Plaid Integration**: Seamlessly link bank accounts from thousands of institutions using Plaid Link.
 * **Transaction Syncing**: Fetches and stores user transaction data from linked accounts.
 * **AI-Powered Categorization**: A machine learning model automatically classifies transactions into spending categories.
-* **Data Visualization**: (Future goal) An interactive dashboard to visualize spending habits and trends.
+* **Data Visualization**: An interactive dashboard to visualize spending habits and trends.
 
 ## Tech Stack
 
